@@ -1,0 +1,9 @@
+setup.py
+bridgeclient/__init__.py
+bridgeclient/bridgeClient.py
+bridgeclient.egg-info/PKG-INFO
+bridgeclient.egg-info/SOURCES.txt
+bridgeclient.egg-info/dependency_links.txt
+bridgeclient.egg-info/not-zip-safe
+bridgeclient.egg-info/requires.txt
+bridgeclient.egg-info/top_level.txt
