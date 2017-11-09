@@ -1,6 +1,8 @@
 import datetime
 import json
+import os
 import hashlib
+import getpass
 from multiprocessing.dummy import Pool
 from synapseutils.monitor import with_progress_bar
 
@@ -11,11 +13,15 @@ from collections import Counter as c
 try:
     from urllib.parse import urlparse
     from urllib.parse import urlunparse
+    import configparser
 except ImportError:
     from urlparse import urlparse
     from urlparse import urlunparse
+    import ConfigParser as configparser
+
 
 BASE_URL='https://webservices.sagebridge.org'
+CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.bridgeConfig')
 
 
 def _is_json(content_type):
@@ -26,13 +32,21 @@ def _is_json(content_type):
 
 
 class bridgeConnector:
-    def __init__(self, email, password, study='parkinson', type="researcher", rememberMe=False):
+    def __init__(self, email=None, password=None, study='parkinson', type="researcher", rememberMe=False):
+        if email is None:
+            config_auth_dict = bridgeConfig()
+            config_auth_dict = config_auth_dict.getDict('authentication')
+            email = config_auth_dict.get('email', None)
+            password = config_auth_dict.get('password', None)
+        if email is None:
+             email = raw_input('Username:')
+             password = getpass.getpass('Password:' )
+        print email, password
         response = self.restPOST('/v3/auth/signIn', headers={},
                                  json={"study": study, "email": email, "password": password, 'type': type})
         #TODO add caching of username/password
         print 'Welcome %s' % response['firstName']
         self.auth = response
-
 
 
     def getParticipants(self, startDate=None, endDate=None):
@@ -146,3 +160,27 @@ class bridgeConnector:
 
 
 
+class bridgeConfig():
+    #TODO finish this method
+
+    def __init__(self, configPath=CONFIG_FILE):
+        self.configPath=configPath
+
+
+    def getConfigFile(self):
+        """Returns a ConfigParser populated with properties from the user's configuration file."""
+        try:
+            config = configparser.ConfigParser()
+            config.read(self.configPath) # Does not fail if the file does not exist
+            return config
+        except configparser.Error:
+            sys.stderr.write('Error parsing Synapse config file: %s' % configPath)
+            raise
+
+    def getDict(self,section='authentication'):
+        """Returns """
+        config = self.getConfigFile()
+        try:
+            return dict(config.items(section))
+        except configparser.NoSectionError:
+            return {}
