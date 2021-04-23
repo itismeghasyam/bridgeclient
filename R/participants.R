@@ -151,15 +151,15 @@ getParticipantIds <- function(healthCode = NULL,
                               external_id = NULL, 
                               user_id = NULL){
   if(!is.null(healthCode)){
-    participant <- get_participant(healthCode = healthCode)
+    participant <- getParticipant(healthCode = healthCode)
   }else if(!is.null(external_id)){
-    participant <- get_participant(external_id = external_id)
+    participant <- getParticipant(external_id = external_id)
   }else if(!is.null(user_id)){
-    participant <- get_participant(user_id = user_id)
+    participant <- getParticipant(user_id = user_id)
   }
   
   if(is.list(participant)){
-    output_list <- list(healthCode = healthCode,
+    output_list <- list(healthCode = participant$healthCode,
                         externalId = participant$externalIds,
                         userId = participant$id,
                         error = 'none')
